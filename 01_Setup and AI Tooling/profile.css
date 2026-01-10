@@ -1,0 +1,152 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.business-card {
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    border-radius: 15px;
+    border: 3px solid #333333;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    position: relative;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.name-section {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.name {
+    font-size: 42px;
+    font-weight: bold;
+    color: #333333;
+    letter-spacing: 2px;
+}
+
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.position,
+.phone {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.label {
+    font-weight: 600;
+    color: #666666;
+    min-width: 80px;
+}
+
+.value {
+    color: #333333;
+    font-weight: 500;
+}
+
+.qr-section {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+}
+
+.qr-code {
+    width: 150px;
+    height: 150px;
+    background: #ffffff;
+    border: 2px solid #333333;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.qr-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.qr-pattern {
+    width: 100%;
+    height: 100%;
+    background-image: 
+        repeating-linear-gradient(0deg, #333 0px, #333 8px, transparent 8px, transparent 16px),
+        repeating-linear-gradient(90deg, #333 0px, #333 8px, transparent 8px, transparent 16px);
+    opacity: 0.3;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.qr-text {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    color: #666666;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+    .business-card {
+        padding: 30px 20px;
+    }
+    
+    .name {
+        font-size: 32px;
+    }
+    
+    .position,
+    .phone {
+        font-size: 16px;
+    }
+    
+    .qr-code {
+        width: 120px;
+        height: 120px;
+    }
+}
