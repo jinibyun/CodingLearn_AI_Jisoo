@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import Counter from './test/testState.jsx'
+import TodoList from './test/TodoList.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Counter />
+    <TodoList />
   </StrictMode>,
 )
