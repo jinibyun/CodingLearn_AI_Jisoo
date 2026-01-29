@@ -1,8 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function TodoList() {
   const [todos, setTodos] = useState([])
   const [input, setInput] = useState('')
+
+  // localStorage에서 todos 로드
+  useEffect(() => {
+    const savedTodos = localStorage.getItem('todos')
+    if (savedTodos) {
+      try {
+        setTodos(JSON.parse(savedTodos))
+      } catch (error) {
+        console.error('localStorage 로드 실패:', error)
+      }
+    }
+  }, [])
+
+  // todos가 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos))
+  }, [todos])
 
   const addTodo = () => {
     if (input.trim() === '') return
