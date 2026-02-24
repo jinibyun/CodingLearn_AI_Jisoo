@@ -35,6 +35,12 @@ export function Navbar() {
             >
               Login
             </Link>
+            <Link 
+              href="/dashboard" 
+              className="text-foreground hover:text-muted-foreground transition-colors duration-200 font-medium"
+            >
+              Dashboard
+            </Link>
           </div>
           <ModeToggle />
         </div>
