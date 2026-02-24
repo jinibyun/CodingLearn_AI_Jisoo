@@ -32,6 +32,12 @@ export default function RootLayout({ children }) {
                 >
                   Contact Us
                 </Link>
+                <Link 
+                  href="/login" 
+                  className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
+                >
+                  Login
+                </Link>
               </div>
             </div>
           </div>
