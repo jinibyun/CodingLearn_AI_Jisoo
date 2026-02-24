@@ -1,5 +1,6 @@
-import Link from 'next/link'
 import './globals.css'
+import { ThemeProvider } from '@/components/theme-provider'
+import { Navbar } from '@/components/navbar'
 
 export const metadata = {
   title: '지수의 포트폴리오',
@@ -10,39 +11,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko">
       <body>
-        <nav className="bg-black text-white border-b border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex space-x-8">
-                <Link 
-                  href="/" 
-                  className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
-                >
-                  Home
-                </Link>
-                <Link 
-                  href="/about" 
-                  className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
-                >
-                  About
-                </Link>
-                <Link 
-                  href="/contactUs" 
-                  className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
-                >
-                  Contact Us
-                </Link>
-                <Link 
-                  href="/login" 
-                  className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
-                >
-                  Login
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
