@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 import { Button } from "@/components/ui/button";
@@ -50,6 +52,8 @@ const formSchema = z.object({
 });
 
 export default function FormsPage() {
+	const [isLoading, setIsLoading] = useState(true);
+	
 	const form = useForm({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -62,6 +66,36 @@ export default function FormsPage() {
 			theme: "system",
 		},
 	});
+
+	useEffect(() => {
+		async function fetchUserData() {
+			try {
+				const { data, error } = await supabase
+					.from('profiles')
+					.select('*')
+					.order('created_at', { ascending: false })
+					.limit(1)
+					.single();
+
+				if (error) {
+					throw error;
+				}
+
+				if (data) {
+					form.reset(data);
+				}
+			} catch (error) {
+				console.error('데이터 불러오기 오류:', error);
+				toast.error('데이터를 불러오지 못했습니다', {
+					description: error.message || '알 수 없는 오류가 발생했습니다.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		}
+
+		fetchUserData();
+	}, [form]);
 
 	async function onSubmit(values) {
 		try {
@@ -79,6 +113,15 @@ export default function FormsPage() {
 				description: error.message || "알 수 없는 오류가 발생했습니다.",
 			});
 		}
+	}
+
+	if (isLoading) {
+		return (
+			<div className="flex min-h-100 flex-col items-center justify-center gap-4">
+				<Loader2 className="size-8 animate-spin text-primary" />
+				<p className="text-muted-foreground">사용자 정보를 불러오는 중...</p>
+			</div>
+		);
 	}
 
 	return (
