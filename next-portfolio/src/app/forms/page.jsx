@@ -53,6 +53,7 @@ const formSchema = z.object({
 
 export default function FormsPage() {
 	const [isLoading, setIsLoading] = useState(true);
+	const [profileId, setProfileId] = useState(null);
 	
 	const form = useForm({
 		resolver: zodResolver(formSchema),
@@ -83,6 +84,7 @@ export default function FormsPage() {
 
 				if (data) {
 					form.reset(data);
+					setProfileId(data.id);
 				}
 			} catch (error) {
 				console.error('데이터 불러오기 오류:', error);
@@ -99,13 +101,26 @@ export default function FormsPage() {
 
 	async function onSubmit(values) {
 		try {
-			const { error } = await supabase.from('profiles').insert([values]);
+			let error;
+			
+			if (profileId) {
+				// 기존 데이터 수정 (Update)
+				const result = await supabase
+					.from('profiles')
+					.update(values)
+					.eq('id', profileId);
+				error = result.error;
+			} else {
+				// 새로운 데이터 생성 (Insert)
+				const result = await supabase.from('profiles').insert([values]);
+				error = result.error;
+			}
 			
 			if (error) {
 				throw error;
 			}
 			
-			toast.success("프로필 저장 성공!", {
+			toast.success(profileId ? "프로필 수정 완료!" : "프로필 생성 완료!", {
 				description: `이메일: ${values.email}, 직업: ${values.role}`,
 			});
 		} catch (error) {
