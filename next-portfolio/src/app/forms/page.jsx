@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,10 +63,22 @@ export default function FormsPage() {
 		},
 	});
 
-	function onSubmit(values) {
-		toast.success("프로필 저장 성공!", {
-			description: `이메일: ${values.email}, 직업: ${values.role}`,
-		});
+	async function onSubmit(values) {
+		try {
+			const { error } = await supabase.from('profiles').insert([values]);
+			
+			if (error) {
+				throw error;
+			}
+			
+			toast.success("프로필 저장 성공!", {
+				description: `이메일: ${values.email}, 직업: ${values.role}`,
+			});
+		} catch (error) {
+			toast.error("프로필 저장 실패", {
+				description: error.message || "알 수 없는 오류가 발생했습니다.",
+			});
+		}
 	}
 
 	return (
