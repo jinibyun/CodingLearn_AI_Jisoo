@@ -1,6 +1,7 @@
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Navbar } from '@/components/navbar'
+import { Toaster } from 'sonner'
 
 export const metadata = {
   title: '지수의 포트폴리오',
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
         >
           <Navbar />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
