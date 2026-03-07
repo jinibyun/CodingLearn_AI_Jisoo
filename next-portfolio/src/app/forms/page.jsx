@@ -130,6 +130,32 @@ export default function FormsPage() {
 		}
 	}
 
+	async function handleDelete() {
+		if (!profileId) return;
+		
+		const confirmed = window.confirm('정말 프로필을 삭제하시겠습니까?');
+		if (!confirmed) return;
+		
+		try {
+			const { error } = await supabase
+				.from('profiles')
+				.delete()
+				.eq('id', profileId);
+			
+			if (error) {
+				throw error;
+			}
+			
+			toast.success('프로필이 삭제되었습니다');
+			form.reset();
+			setProfileId(null);
+		} catch (error) {
+			toast.error('프로필 삭제 실패', {
+				description: error.message || '알 수 없는 오류가 발생했습니다.',
+			});
+		}
+	}
+
 	if (isLoading) {
 		return (
 			<div className="flex min-h-100 flex-col items-center justify-center gap-4">
@@ -275,7 +301,18 @@ export default function FormsPage() {
 						)}
 					/>
 
-					<Button type="submit">저장</Button>
+					<div className="flex items-center gap-4">
+						<Button type="submit">저장</Button>
+						{profileId && (
+							<Button
+								type="button"
+								variant="destructive"
+								onClick={handleDelete}
+							>
+								프로필 삭제
+							</Button>
+						)}
+					</div>
 				</form>
 			</Form>
 		</div>
