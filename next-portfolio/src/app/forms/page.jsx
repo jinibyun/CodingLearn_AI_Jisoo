@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import useSWR from 'swr';
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -51,9 +52,13 @@ const formSchema = z.object({
 	theme: z.enum(["light", "dark", "system"]),
 });
 
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
 export default function FormsPage() {
+	/*
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState(null);
+	*/
 	const [profileId, setProfileId] = useState(null);
 	
 	const form = useForm({
@@ -69,6 +74,7 @@ export default function FormsPage() {
 		},
 	});
 
+	/*
 	useEffect(() => {
 		async function fetchUserData() {
 			try {
@@ -94,6 +100,16 @@ export default function FormsPage() {
 
 		fetchUserData();
 	}, [form]);
+	*/
+
+	const { data, error, isLoading } = useSWR('/api/profiles', fetcher);
+
+	useEffect(() => {
+		if (data?.data) {
+			form.reset(data.data);
+			setProfileId(data.data.id);
+		}
+	}, [data, form]);
 
 	async function onSubmit(values) {
 		try {
