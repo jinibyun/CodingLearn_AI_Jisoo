@@ -53,6 +53,7 @@ const formSchema = z.object({
 
 export default function FormsPage() {
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const [profileId, setProfileId] = useState(null);
 	
 	const form = useForm({
@@ -71,26 +72,21 @@ export default function FormsPage() {
 	useEffect(() => {
 		async function fetchUserData() {
 			try {
-				const { data, error } = await supabase
-					.from('profiles')
-					.select('*')
-					.order('created_at', { ascending: false })
-					.limit(1)
-					.single();
+				setError(null);
+				const res = await fetch('/api/profiles');
 
-				if (error) {
-					throw error;
+				if (!res.ok) {
+					throw new Error('데이터를 불러오지 못했습니다.');
 				}
 
-				if (data) {
-					form.reset(data);
-					setProfileId(data.id);
+				const json = await res.json();
+
+				if (json.data) {
+					form.reset(json.data);
+					setProfileId(json.data.id);
 				}
 			} catch (error) {
-				console.error('데이터 불러오기 오류:', error);
-				toast.error('데이터를 불러오지 못했습니다', {
-					description: error.message || '알 수 없는 오류가 발생했습니다.',
-				});
+				setError(error.message || '알 수 없는 오류가 발생했습니다.');
 			} finally {
 				setIsLoading(false);
 			}
@@ -168,6 +164,7 @@ export default function FormsPage() {
 	return (
 		<div className="mx-auto max-w-2xl p-6">
 			<h1 className="mb-6 text-2xl font-bold">종합 프로필 설정 폼</h1>
+			{error && <p className="mb-4 text-red-500">{error}</p>}
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<FormField
