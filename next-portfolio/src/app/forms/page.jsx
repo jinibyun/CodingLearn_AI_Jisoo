@@ -102,7 +102,7 @@ export default function FormsPage() {
 	}, [form]);
 	*/
 
-	const { data, error, isLoading } = useSWR('/api/profiles', fetcher);
+	const { data, error, isLoading, mutate } = useSWR('/api/profiles', fetcher);
 
 	useEffect(() => {
 		if (data?.data) {
@@ -128,6 +128,7 @@ export default function FormsPage() {
 			toast.success(profileId ? "프로필 수정 완료!" : "프로필 생성 완료!", {
 				description: `이메일: ${values.email}, 직업: ${values.role}`,
 			});
+			mutate();
 		} catch (error) {
 			toast.error("프로필 저장 실패", {
 				description: error.message || "알 수 없는 오류가 발생했습니다.",
