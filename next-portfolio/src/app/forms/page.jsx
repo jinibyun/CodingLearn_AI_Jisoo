@@ -114,6 +114,15 @@ export default function FormsPage() {
 	async function onSubmit(values) {
 		try {
 			const payload = profileId ? { ...values, id: profileId } : values;
+			
+			// Optimistic UI: fetch 직전에 SWR 캐시를 즉시 업데이트
+			const optimisticData = { data: payload };
+			mutate(optimisticData, {
+				optimisticData,
+				rollbackOnError: true,
+				revalidate: false,
+			});
+			
 			const res = await fetch('/api/profiles', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
