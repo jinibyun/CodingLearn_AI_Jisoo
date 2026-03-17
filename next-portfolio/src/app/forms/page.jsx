@@ -97,23 +97,16 @@ export default function FormsPage() {
 
 	async function onSubmit(values) {
 		try {
-			let error;
-			
-			if (profileId) {
-				// 기존 데이터 수정 (Update)
-				const result = await supabase
-					.from('profiles')
-					.update(values)
-					.eq('id', profileId);
-				error = result.error;
-			} else {
-				// 새로운 데이터 생성 (Insert)
-				const result = await supabase.from('profiles').insert([values]);
-				error = result.error;
-			}
-			
-			if (error) {
-				throw error;
+			const payload = profileId ? { ...values, id: profileId } : values;
+			const res = await fetch('/api/profiles', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			});
+
+			if (!res.ok) {
+				const json = await res.json().catch(() => null);
+				throw new Error(json?.error || '프로필 저장에 실패했습니다.');
 			}
 			
 			toast.success(profileId ? "프로필 수정 완료!" : "프로필 생성 완료!", {
