@@ -59,6 +59,7 @@ export default function FormsPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState(null);
 	*/
+	const [authUser, setAuthUser] = useState(null);
 	const [profileId, setProfileId] = useState(null);
 	
 	const form = useForm({
@@ -73,6 +74,18 @@ export default function FormsPage() {
 			theme: "system",
 		},
 	});
+
+	useEffect(() => {
+		async function fetchAuthUser() {
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+
+			setAuthUser(user ?? null);
+		}
+
+		fetchAuthUser();
+	}, []);
 
 	/*
 	useEffect(() => {
@@ -102,18 +115,42 @@ export default function FormsPage() {
 	}, [form]);
 	*/
 
-	const { data, error, isLoading, mutate } = useSWR('/api/profiles', fetcher);
+	const profileApiUrl = authUser?.id ? `/api/profiles?id=${authUser.id}` : null;
+	const { data, error, isLoading, mutate } = useSWR(profileApiUrl, fetcher);
 
 	useEffect(() => {
 		if (data?.data) {
 			form.reset(data.data);
 			setProfileId(data.data.id);
+			return;
 		}
-	}, [data, form]);
+
+		if (data && data.data === null && authUser?.email) {
+			setProfileId(authUser.id);
+			form.reset({
+				email: authUser.email,
+				username: "",
+				bio: "",
+				password: "",
+				role: "",
+				marketing_emails: false,
+				theme: "system",
+			});
+		}
+	}, [authUser, data, form]);
 
 	async function onSubmit(values) {
 		try {
-			const payload = profileId ? { ...values, id: profileId } : values;
+			if (!authUser?.id) {
+				throw new Error('로그인 사용자 정보를 찾을 수 없습니다. 다시 로그인해 주세요.');
+			}
+
+			const payload = {
+				id: profileId ?? authUser.id,
+				username: values.username,
+				email: authUser.email ?? values.email,
+				bio: values.bio ?? "",
+			};
 			
 			// Optimistic UI: fetch 직전에 SWR 캐시를 즉시 업데이트
 			const optimisticData = { data: payload };
@@ -207,7 +244,7 @@ export default function FormsPage() {
 							<FormItem>
 								<FormLabel>이메일</FormLabel>
 								<FormControl>
-									<Input type="email" placeholder="you@example.com" {...field} />
+									<Input type="email" placeholder="you@example.com" readOnly {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

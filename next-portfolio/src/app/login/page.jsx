@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
 	Card,
 	CardHeader,
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -60,6 +62,7 @@ export default function LoginPage() {
 			}
 
 			setMessage("로그인 성공!");
+			router.push("/forms");
 		} catch (err) {
 			setError(err.message || "로그인 중 오류가 발생했습니다.");
 		} finally {
