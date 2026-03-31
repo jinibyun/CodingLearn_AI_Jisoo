@@ -46,6 +46,7 @@ export async function POST(request) {
 		username: body?.username,
 		email: body?.email,
 		bio: body?.bio ?? "",
+		avatar_url: body?.avatar_url ?? "",
 	};
 
 	if (payload.email !== user.email) {
