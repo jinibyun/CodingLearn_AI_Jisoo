@@ -62,6 +62,7 @@ export default function LoginPage() {
 			}
 
 			setMessage("로그인 성공!");
+			router.refresh(); // 미들웨어가 새 쿠키를 인식하도록 서버 상태 갱신
 			router.push("/forms");
 		} catch (err) {
 			setError(err.message || "로그인 중 오류가 발생했습니다.");

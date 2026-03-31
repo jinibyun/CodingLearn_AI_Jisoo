@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { supabase } from '@/lib/supabase'
 
@@ -9,6 +10,7 @@ import { supabase } from '@/lib/supabase'
 
 export function Navbar() {
   const [user, setUser] = useState(null)
+  const router = useRouter()
 
   useEffect(() => {
     async function getInitialSession() {
@@ -33,6 +35,8 @@ export function Navbar() {
 
   async function handleLogout() {
     await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
   }
 
   return (
