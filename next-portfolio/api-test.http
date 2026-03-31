@@ -13,5 +13,7 @@ Content-Type: application/json
   "email": "test@api.com",
   "bio": "REST Client로 쏘아올린 테스트 데이터입니다.",
   "role": "designer",
-  "password": "test1234"
+  "marketing_emails": true,
+  "theme": "system",
+  "avatar_url": ""
 }

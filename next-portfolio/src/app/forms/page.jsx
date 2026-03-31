@@ -37,7 +37,6 @@ const formSchema = z.object({
 		.min(2, { message: "닉네임은 2~20자 사이여야 합니다." })
 		.max(20, { message: "닉네임은 2~20자 사이여야 합니다." }),
 	email: z.string().email({ message: "유효한 이메일 주소를 입력해주세요." }),
-	password: z.string().min(8, { message: "비밀번호는 최소 8자 이상이어야 합니다." }),
 	bio: z
 		.string()
 		.max(160, { message: "자기소개는 160자를 초과할 수 없습니다." })
@@ -48,6 +47,7 @@ const formSchema = z.object({
 			(value) => ["developer", "designer", "manager"].includes(value),
 			{ message: "직업을 선택해주세요." }
 		),
+	avatar_url: z.string().optional(),
 	marketing_emails: z.boolean(),
 	theme: z.enum(["light", "dark", "system"]),
 });
@@ -67,9 +67,9 @@ export default function FormsPage() {
 		defaultValues: {
 			username: "",
 			email: "",
-			password: "",
 			bio: "",
 			role: "",
+			avatar_url: "",
 			marketing_emails: false,
 			theme: "system",
 		},
@@ -131,8 +131,8 @@ export default function FormsPage() {
 				email: authUser.email,
 				username: "",
 				bio: "",
-				password: "",
 				role: "",
+				avatar_url: "",
 				marketing_emails: false,
 				theme: "system",
 			});
@@ -150,6 +150,10 @@ export default function FormsPage() {
 				username: values.username,
 				email: authUser.email ?? values.email,
 				bio: values.bio ?? "",
+				role: values.role,
+				marketing_emails: Boolean(values.marketing_emails),
+				theme: values.theme,
+				avatar_url: values.avatar_url ?? "",
 			};
 			
 			// Optimistic UI: fetch 직전에 SWR 캐시를 즉시 업데이트
@@ -190,7 +194,7 @@ export default function FormsPage() {
 		
 		try {
 			const { error } = await supabase
-				.from('profiles')
+				.from('profiles2')
 				.delete()
 				.eq('id', profileId);
 			
@@ -253,20 +257,6 @@ export default function FormsPage() {
 
 					<FormField
 						control={form.control}
-						name="password"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>비밀번호</FormLabel>
-								<FormControl>
-									<Input type="password" placeholder="비밀번호를 입력하세요" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<FormField
-						control={form.control}
 						name="bio"
 						render={({ field }) => (
 							<FormItem>
@@ -290,7 +280,7 @@ export default function FormsPage() {
 							<FormItem>
 								<FormLabel>직업</FormLabel>
 								<FormControl>
-									<Select onValueChange={field.onChange} defaultValue={field.value}>
+									<Select onValueChange={field.onChange} value={field.value}>
 										<SelectTrigger className="w-full">
 											<SelectValue placeholder="직업을 선택하세요" />
 										</SelectTrigger>
