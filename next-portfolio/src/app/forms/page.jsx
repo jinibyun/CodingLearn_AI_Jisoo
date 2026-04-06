@@ -7,8 +7,8 @@ import * as z from "zod";
 import useSWR from 'swr';
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
+import AvatarUpload from "@/components/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,11 +77,18 @@ export default function FormsPage() {
 
 	useEffect(() => {
 		async function fetchAuthUser() {
-			const {
-				data: { user },
-			} = await supabase.auth.getUser();
+			try {
+				const res = await fetch('/api/auth/me');
+				if (!res.ok) {
+					setAuthUser(null);
+					return;
+				}
 
-			setAuthUser(user ?? null);
+				const json = await res.json();
+				setAuthUser(json?.user ?? null);
+			} catch {
+				setAuthUser(null);
+			}
 		}
 
 		fetchAuthUser();
@@ -193,13 +200,15 @@ export default function FormsPage() {
 		if (!confirmed) return;
 		
 		try {
-			const { error } = await supabase
-				.from('profiles2')
-				.delete()
-				.eq('id', profileId);
-			
-			if (error) {
-				throw error;
+			const res = await fetch('/api/profiles', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: profileId }),
+			});
+
+			if (!res.ok) {
+				const json = await res.json().catch(() => null);
+				throw new Error(json?.error || '프로필 삭제에 실패했습니다.');
 			}
 			
 			toast.success('프로필이 삭제되었습니다');
@@ -227,6 +236,23 @@ export default function FormsPage() {
 			{error && <p className="mb-4 text-red-500">{error}</p>}
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+					<FormField
+						control={form.control}
+						name="avatar_url"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>프로필 사진</FormLabel>
+								<FormControl>
+									<AvatarUpload
+										url={field.value}
+										onUpload={(url) => field.onChange(url)}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
 					<FormField
 						control={form.control}
 						name="username"

@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -29,16 +28,18 @@ export default function LoginPage() {
 			setError("");
 			setMessage("");
 
-			const { error: signUpError } = await supabase.auth.signUp({
-				email,
-				password,
+			const response = await fetch("/api/auth/signup", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, password }),
 			});
+			const result = await response.json();
 
-			if (signUpError) {
-				throw signUpError;
+			if (!response.ok) {
+				throw new Error(result?.error || "회원가입 중 오류가 발생했습니다.");
 			}
 
-			setMessage("가입 성공! 이메일을 확인해주세요.");
+			setMessage(result?.message || "가입 성공! 이메일을 확인해주세요.");
 		} catch (err) {
 			setError(err.message || "회원가입 중 오류가 발생했습니다.");
 		} finally {
@@ -52,16 +53,18 @@ export default function LoginPage() {
 			setError("");
 			setMessage("");
 
-			const { error: signInError } = await supabase.auth.signInWithPassword({
-				email,
-				password,
+			const response = await fetch("/api/auth/signin", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, password }),
 			});
+			const result = await response.json();
 
-			if (signInError) {
-				throw signInError;
+			if (!response.ok) {
+				throw new Error(result?.error || "로그인 중 오류가 발생했습니다.");
 			}
 
-			setMessage("로그인 성공!");
+			setMessage(result?.message || "로그인 성공!");
 			router.refresh(); // 미들웨어가 새 쿠키를 인식하도록 서버 상태 갱신
 			router.push("/forms");
 		} catch (err) {

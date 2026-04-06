@@ -1,39 +1,32 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { getServerSupabase } from "@/lib/supabase-server";
 
-async function getServerSupabase() {
-	const cookieStore = await cookies();
+async function getAuthUser(request, supabase) {
+	const authorization = request.headers.get("authorization");
+	const bearerToken = authorization?.startsWith("Bearer ")
+		? authorization.slice(7).trim()
+		: "";
 
-	return createServerClient(
-		process.env.NEXT_PUBLIC_SUPABASE_URL,
-		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-		{
-			cookies: {
-				getAll() {
-					return cookieStore.getAll();
-				},
-				setAll(cookiesToSet) {
-					try {
-						cookiesToSet.forEach(({ name, value, options }) =>
-							cookieStore.set(name, value, options)
-						);
-					} catch {
-						// Ignore setAll errors in contexts where cookies are read-only.
-					}
-				},
-			},
-		}
-	);
+	if (bearerToken) {
+		const {
+			data: { user },
+			error,
+		} = await supabase.auth.getUser(bearerToken);
+
+		return { user, authError: error };
+	}
+
+	const {
+		data: { user },
+		error,
+	} = await supabase.auth.getUser();
+
+	return { user, authError: error };
 }
 
 export async function GET(request) {
 	const supabase = await getServerSupabase();
-
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
+	const { user, authError } = await getAuthUser(request, supabase);
 
 	if (!user || authError) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -60,11 +53,7 @@ export async function GET(request) {
 
 export async function POST(request) {
 	const supabase = await getServerSupabase();
-
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
+	const { user, authError } = await getAuthUser(request, supabase);
 
 	if (!user || authError) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -93,4 +82,28 @@ export async function POST(request) {
 	}
 
 	return NextResponse.json({ data }, { status: 200 });
+}
+
+export async function DELETE(request) {
+	const supabase = await getServerSupabase();
+	const { user, authError } = await getAuthUser(request, supabase);
+
+	if (!user || authError) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	}
+
+	const body = await request.json().catch(() => ({}));
+	const targetId = body?.id || user.id;
+
+	if (targetId !== user.id) {
+		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+	}
+
+	const { error } = await supabase.from("profiles2").delete().eq("id", targetId);
+
+	if (error) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
+
+	return NextResponse.json({ success: true }, { status: 200 });
 }

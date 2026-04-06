@@ -72,19 +72,11 @@ export default function AvatarUpload({ url, size = 150, onUpload }) {
 				style={{ width: dimension, height: dimension }}
 				aria-label="아바타 이미지 업로드"
 			>
-				{url ? (
-					<img
-						src={url}
-						alt="프로필 아바타"
-						className={`h-full w-full rounded-full object-cover transition-opacity ${uploading ? "opacity-50" : "opacity-100"}`}
-					/>
-				) : (
-					<div
-						className={`flex h-full w-full items-center justify-center rounded-full bg-gray-300 text-sm font-medium text-gray-600 transition-opacity ${uploading ? "opacity-50" : "opacity-100"}`}
-					>
-						No Image
-					</div>
-				)}
+				<img
+					src={url || "/default-avatar.svg"}
+					alt="프로필 아바타"
+					className={`h-full w-full rounded-full object-cover transition-opacity ${uploading ? "opacity-50" : "opacity-100"}`}
+				/>
 
 				{uploading ? (
 					<div className="absolute inset-0 flex items-center justify-center bg-black/30 text-sm font-medium text-white">
