@@ -7,6 +7,7 @@ import * as z from "zod";
 import useSWR from 'swr';
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 
 import AvatarUpload from "@/components/AvatarUpload";
 import { Button } from "@/components/ui/button";
@@ -187,8 +188,11 @@ export default function FormsPage() {
 			});
 			mutate();
 		} catch (error) {
+			Sentry.captureException(error, {
+				tags: { form_step: "profile_save" },
+			});
 			toast.error("프로필 저장 실패", {
-				description: error.message || "알 수 없는 오류가 발생했습니다.",
+				description: "문제가 발생하여 개발팀에 자동 보고되었습니다. 잠시 후 다시 시도해 주세요.",
 			});
 		}
 	}
@@ -215,8 +219,11 @@ export default function FormsPage() {
 			form.reset();
 			setProfileId(null);
 		} catch (error) {
+			Sentry.captureException(error, {
+				tags: { form_step: "profile_delete" },
+			});
 			toast.error('프로필 삭제 실패', {
-				description: error.message || '알 수 없는 오류가 발생했습니다.',
+				description: "문제가 발생하여 개발팀에 자동 보고되었습니다. 잠시 후 다시 시도해 주세요.",
 			});
 		}
 	}
